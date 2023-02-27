@@ -196,7 +196,7 @@ class Survey_constraintor(object):
 
         result = np.array(result)
         self.result = result
-        self.effcy_map_all[event_id] = result 
+        self.effcy_map_all[event_id] = result
     
     def _map_interpolator_train(self):
         params = self.result[:,:-1]
@@ -255,6 +255,7 @@ class Survey_constraintor(object):
         self.plan = None
         del self.survey_file
         del self.posterior
+        print('---')
 
 
 
