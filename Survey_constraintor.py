@@ -242,8 +242,6 @@ class Survey_constraintor(object):
             f.close()
                 
 
-
-
     def load_plan(self,filename):
         with open(filename,'rb') as f:
             plan = pickle.load(f)
