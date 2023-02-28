@@ -29,7 +29,7 @@ import sncosmo
 import astropy.units as u
 from astropy.cosmology import Planck18, z_at_value
 import dynesty
-from tqdm import tqdm
+from tqdm import *
 
 
 pc10 = tkk.pc10
@@ -136,7 +136,7 @@ class Survey_constraintor(object):
         return out
 
 
-    def get_effcy_map(self,param_flat,nprocess=20,event_id=None,rate=3e-5,ntransient=1000,out_dir=None,skymap_file=False,**kwargs):
+    def get_effcy_map(self,param_flat,multi=True,nprocess=20,event_id=None,rate=3e-5,ntransient=1000,out_dir=None,skymap_file=False,**kwargs):
         '''
         ntransient: [int]               override number of transient calculated from integrated 
                                     rate, ratefunc is still used to calculate shape of the 
@@ -185,18 +185,26 @@ class Survey_constraintor(object):
         self.kwargs = kwargs
         print('Setting is done')
 
-        total = int(param_flat.shape[0] * param_flat.shape[1])
+        #total = int(param_flat.shape[0] * param_flat.shape[1])
         #with Pool(nprocess) as pool:
         #    result = list(tqdm(pool.imap(self._cal_effcy,param_flat), total=total))
-
-        pool = Pool(processes=nprocess)
-        result = pool.map(self._cal_effcy,param_flat)
-        pool.close()
-        pool.join()
+        if multi:
+            pool = Pool(processes=nprocess)
+            result = pool.map(self._cal_effcy,param_flat)
+            pool.close()
+            pool.join()
+        else:
+            result = []
+            for i in range(param_flat.shape[0]):
+                p = param_flat[i,:]
+                re = self._cal_effcy(p)
+                result.append(re)
+                print(re[-1])
 
         result = np.array(result)
         self.result = result
         self.effcy_map_all[event_id] = result
+        print('Multiprocessing is done!')
     
     def _map_interpolator_train(self):
         params = self.result[:,:-1]
